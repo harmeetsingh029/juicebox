@@ -11,6 +11,15 @@ async function getAllUsers() {
     return rows
 }
 
+async function getAllPosts(){
+    const { rows } = await client.query(`
+        SELECT * FROM posts;
+    `)
+
+    return rows
+
+}
+
 async function createUser({username, password, name, location}) {
     try{
         const {rows: [user]} = await client.query(`
@@ -26,6 +35,20 @@ async function createUser({username, password, name, location}) {
         throw err;
     }
 }
+
+async function createPost({ authorId, title, content }) {
+    try {
+        const result = await client.query(`
+            INSERT INTO posts("authorId", title, content)
+            VALUES($1, $2, $3);
+        `, [authorId, title, content])
+        
+        return result
+
+    } catch (error) {
+      throw error;
+    }
+  }
 
 async function updateUser(id, fields = {}) {
     // build the set string
@@ -51,10 +74,13 @@ async function updateUser(id, fields = {}) {
       throw error;
     }
   }
+  
 
 module.exports = {
   client,
   getAllUsers,
   createUser,
-  updateUser
+  updateUser,
+  createPost,
+  getAllPosts
 }

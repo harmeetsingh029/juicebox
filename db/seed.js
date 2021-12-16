@@ -1,4 +1,4 @@
-const { client, getAllUsers, createUser, updateUser } = require('./index');
+const { client, getAllUsers, createUser, updateUser, createPost, getAllPosts } = require('./index');
 
 async function testDB() {
     try{
@@ -9,8 +9,12 @@ async function testDB() {
         console.log("updating user[0]")
         const updateUserResult = await updateUser(users[0].id, {name: 'taco', location: 'Miami, FL'})
         console.log("Result: ", updateUserResult)
-        console.log("Finished database tests!");
 
+        console.log('getting all posts')
+        const allPostsResult = await getAllPosts()
+        console.log("all posts result: ", allPostsResult)
+
+        console.log("Finished database tests!");
     } catch (err) {
 
         console.log(err)
@@ -18,10 +22,30 @@ async function testDB() {
     }
 }
 
+async function createInitialPosts() {
+    try {
+      const [albert, sandra, glamgal] = await getAllUsers();
+  
+      await createPost({
+        authorId: albert.id,
+        title: "First Post",
+        content: "This is my first post. I hope I love writing blogs as much as I love writing them."
+      });
+  
+      // a couple more
+    } catch (error) {
+      throw error;
+    }
+  }
+
 async function dropTables() {
     try{
 
         console.log("Starting to drop tables...");
+
+        await client.query(`
+            DROP TABLE IF EXISTS posts;
+        `)
 
         await client.query(`
             DROP TABLE IF EXISTS users;
@@ -46,6 +70,16 @@ async function createTables() {
                 password varchar(255) NOT NULL,
                 name varchar(255) NOT NULL,
                 location varchar(255) NOT NULL,
+                active BOOLEAN DEFAULT true
+            );
+        `);
+
+        await client.query(`
+            CREATE TABLE posts (
+                id SERIAL PRIMARY KEY,
+                "authorId" INTEGER REFERENCES users(id) NOT NULL,
+                title varchar(255) NOT NULL,
+                content TEXT NOT NULL,
                 active BOOLEAN DEFAULT true
             );
         `);
@@ -81,6 +115,7 @@ async function rebuildDB() {
       await dropTables();
       await createTables();
       await createInitialUsers();
+      await createInitialPosts();
     } catch (error) {
       console.error(error);
     }
