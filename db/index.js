@@ -1,5 +1,4 @@
 const { Client } = require('pg'); // imports the pg module
-const { DataRowMessage } = require('pg-protocol/dist/messages');
 
 // supply the db name and location of the database
 const client = new Client('postgres://localhost:5432/juicebox-dev');
@@ -122,17 +121,15 @@ async function updateUser(id, fields = {}) {
   async function getUserById(userId) {
       try{
         console.log("beginning of try")
-        const {rows: [user]} = await client.query(`
+        const {rows} = await client.query(`
           SELECT id, username, name, location, active FROM users
           WHERE id=${userId};
         `)
         console.log("before if")
-        if(!user){
+        if(!rows){
           throw "cannot find user"
         }
-        console.log(userId)
-        //const posts = await getPostsByUser(userId)
-        //console.log("THE POSTS THAT ARE GOTTEN: ", posts)
+        console.log("THESE ARE THE ROWS THAT PRINT: ", rows)
 
       } catch(err){
         throw err + "couldnt get user by id"
