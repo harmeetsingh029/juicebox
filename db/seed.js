@@ -73,6 +73,14 @@ async function dropTables() {
         console.log("Starting to drop tables...");
 
         await client.query(`
+        DROP TABLE IF EXISTS post_tags;
+        `)
+
+        await client.query(`
+        DROP TABLE IF EXISTS tags;
+        `)
+
+        await client.query(`
             DROP TABLE IF EXISTS posts;
         `)
 
@@ -112,6 +120,20 @@ async function createTables() {
                 active BOOLEAN DEFAULT true
             );
         `);
+
+        await client.query(`
+          CREATE TABLE tags (
+            id SERIAL PRIMARY KEY,
+            name varchar(255) UNIQUE NOT NULL
+          );
+        `);
+
+        await client.query(`
+            CREATE TABLE post_tags (
+              "postId" INTEGER REFERENCES posts(id) UNIQUE,
+              "tagId" INTEGER REFERENCES tags(id) UNIQUE
+            );
+        `)
         
         console.log("Finished building tables!");
 
