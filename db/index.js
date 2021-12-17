@@ -1,4 +1,5 @@
 const { Client } = require('pg'); // imports the pg module
+const { DataRowMessage } = require('pg-protocol/dist/messages');
 
 // supply the db name and location of the database
 const client = new Client('postgres://localhost:5432/juicebox-dev');
@@ -81,8 +82,7 @@ async function updateUser(id, fields = {}) {
     const setString = Object.keys(fields).map(
       (key, index) => `"${ key }"=$${ index + 1 }`
     ).join(', ');
-  
-    // return early if this is called without fields
+
     if (setString.length === 0) {
       return;
     }
@@ -103,6 +103,43 @@ async function updateUser(id, fields = {}) {
     }
   }
 
+  async function getPostsByUser(userId) {
+    try {
+      const {rows} = await client.query(`
+        SELECT * FROM posts
+        WHERE "authorId"=${ userId };
+      `);
+      // const posts = await Promise.all(postids.map( el => {
+      //   console.log(el)
+      // }))
+      
+      return rows;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async function getUserById(userId) {
+      try{
+        console.log("beginning of try")
+        const {rows: [user]} = await client.query(`
+          SELECT id, username, name, location, active FROM users
+          WHERE id=${userId};
+        `)
+        console.log("before if")
+        if(!user){
+          throw "cannot find user"
+        }
+        console.log(userId)
+        //const posts = await getPostsByUser(userId)
+        //console.log("THE POSTS THAT ARE GOTTEN: ", posts)
+
+      } catch(err){
+        throw err + "couldnt get user by id"
+      }
+  }
+  getUserById(1)
+
 module.exports = {
   client,
   getAllUsers,
@@ -110,5 +147,6 @@ module.exports = {
   updateUser,
   createPost,
   getAllPosts,
-  updatePost
+  updatePost,
+  getPostsByUser
 }

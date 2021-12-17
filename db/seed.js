@@ -1,4 +1,4 @@
-const { client, getAllUsers, createUser, updateUser, createPost, getAllPosts, updatePost } = require('./index');
+const { client, getAllUsers, createUser, updateUser, createPost, getAllPosts, updatePost, getPostsByUser } = require('./index');
 
 async function testDB() {
     try{
@@ -18,6 +18,10 @@ async function testDB() {
         const updatePostResult = await updatePost(posts[0].id, {title: 'Edited post', content: 'this has been changed', active: 'true'})
         console.log("updated post!", updatePostResult)
 
+        console.log("getting post by user...") 
+        const postByUser = await getPostsByUser(1)
+        console.log("Got post by user!", postByUser)
+
         console.log("Finished database tests!");
     } catch (err) {
 
@@ -36,7 +40,24 @@ async function createInitialPosts() {
         content: "This is my first post. I hope I love writing blogs as much as I love writing them."
       });
   
-      // a couple more
+      await createPost({
+        authorId: sandra.id,
+        title: "Sandra's Post",
+        content: "Hi im Sandra."
+      });
+
+      await createPost({
+        authorId: albert.id,
+        title: "Alberts 2nd post",
+        content: "This is my 2nd post."
+      });
+
+      await createPost({
+        authorId: glamgal.id,
+        title: "Glam's post",
+        content: `Hi im glam and my id is ${glamgal.id}`
+      });
+
     } catch (error) {
       throw error;
     }
