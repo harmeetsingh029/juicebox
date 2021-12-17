@@ -51,6 +51,30 @@ async function createPost({ authorId, title, content }) {
     }
   }
 
+  async function createTags(tagList){
+    if(tagList === 0){
+      return
+    }
+    const insertValues = tagList.map(
+      (_, index) => `$${index + 1}`).join('), (');
+
+    const selectValues = tagList.map(
+      (_, index) => `$${index + 1}`).join(', ');
+    
+      await client.query(`
+        INSERT INTO tags(name)
+        VALUES (${insertValues})
+        ON CONFLICT (name) DO NOTHING;
+      `)
+
+      const {rows} = await client.query(`
+        SELECT name FROM tags
+        WHERE name = ${selectValues};
+      `)
+
+      return rows
+  }
+
 async function updateUser(id, fields = {}) {
     // build the set string
     const setString = Object.keys(fields).map(
