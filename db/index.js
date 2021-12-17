@@ -108,9 +108,6 @@ async function updateUser(id, fields = {}) {
         SELECT * FROM posts
         WHERE "authorId"=${ userId };
       `);
-      // const posts = await Promise.all(postids.map( el => {
-      //   console.log(el)
-      // }))
       
       return rows;
     } catch (error) {
@@ -120,22 +117,25 @@ async function updateUser(id, fields = {}) {
 
   async function getUserById(userId) {
       try{
-        console.log("beginning of try")
-        const {rows} = await client.query(`
+
+        const {rows: [user]} = await client.query(`
           SELECT id, username, name, location, active FROM users
           WHERE id=${userId};
         `)
-        console.log("before if")
-        if(!rows){
+
+        if(!user){
           throw "cannot find user"
         }
-        console.log("THESE ARE THE ROWS THAT PRINT: ", rows)
+
+        const posts = await getPostsByUser(userId)
+        user.posts = posts
+
+        return user
 
       } catch(err){
         throw err + "couldnt get user by id"
       }
   }
-  getUserById(1)
 
 module.exports = {
   client,
@@ -145,5 +145,6 @@ module.exports = {
   createPost,
   getAllPosts,
   updatePost,
-  getPostsByUser
+  getPostsByUser,
+  getUserById
 }
