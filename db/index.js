@@ -38,12 +38,13 @@ async function createUser({username, password, name, location}) {
 
 async function createPost({ authorId, title, content }) {
     try {
-        const result = await client.query(`
+        const rows = await client.query(`
             INSERT INTO posts("authorId", title, content)
             VALUES($1, $2, $3);
         `, [authorId, title, content])
         
-        return result
+        console.log("from createpost: ", rows)
+        return rows
 
     } catch (error) {
       throw error;
@@ -75,6 +76,32 @@ async function updateUser(id, fields = {}) {
     }
   }
   
+  async function updatePost(id, { title, content, active }) {
+    let fields = { title, content, active }
+    const setString = Object.keys(fields).map(
+      (key, index) => `"${ key }"=$${ index + 1 }`
+    ).join(', ');
+  
+    // return early if this is called without fields
+    if (setString.length === 0) {
+      return;
+    }
+
+    try {
+      
+      const { rows } = await client.query(`
+      UPDATE posts
+      SET ${ setString }
+      WHERE id=${ id }
+      RETURNING *;
+    `, Object.values(fields));
+
+    return rows;
+      
+    } catch (error) {
+      throw error;
+    }
+  }
 
 module.exports = {
   client,
@@ -82,5 +109,6 @@ module.exports = {
   createUser,
   updateUser,
   createPost,
-  getAllPosts
+  getAllPosts,
+  updatePost
 }

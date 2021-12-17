@@ -1,4 +1,4 @@
-const { client, getAllUsers, createUser, updateUser, createPost, getAllPosts } = require('./index');
+const { client, getAllUsers, createUser, updateUser, createPost, getAllPosts, updatePost } = require('./index');
 
 async function testDB() {
     try{
@@ -11,8 +11,12 @@ async function testDB() {
         console.log("Result: ", updateUserResult)
 
         console.log('getting all posts')
-        const allPostsResult = await getAllPosts()
-        console.log("all posts result: ", allPostsResult)
+        const posts = await getAllPosts()
+        console.log("all posts result: ", posts)
+
+        console.log("updating a post...")
+        const updatePostResult = await updatePost(posts[0].id, {title: 'Edited post', content: 'this has been changed', active: 'true'})
+        console.log("updated post!", updatePostResult)
 
         console.log("Finished database tests!");
     } catch (err) {
