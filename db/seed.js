@@ -7,9 +7,7 @@ const { client,
   updatePost, 
   getPostsByUser, 
   getUserById, 
-  createTags, 
-  addTagsToPost,
-  getPostById } = require('./index');
+  getPostsByTagName } = require('./index');
 
 async function testDB() {
     try{
@@ -25,9 +23,11 @@ async function testDB() {
         const posts = await getAllPosts()
         console.log("all posts result: ", posts)
 
-        console.log("updating a post...")
-        const updatePostResult = await updatePost(posts[0].id, {title: 'Edited post', content: 'this has been changed', active: 'true'})
-        console.log("updated post!", updatePostResult)
+        console.log("Calling updatePost on posts[1], only updating tags");
+        const updatePostTagsResult = await updatePost(posts[1].id, {
+          tags: ["#youcandoanything", "#redfish", "#bluefish"]
+        });
+        console.log("Result:", updatePostTagsResult);
 
         console.log("getting post by user...") 
         const postByUser = await getPostsByUser(1)
@@ -36,6 +36,10 @@ async function testDB() {
         console.log("testing getuser...")
         const getUserTest = await getUserById(1)
         console.log("finsihed testing user", getUserTest)
+
+        console.log("Calling getPostsByTagName with #happy");
+        const postsWithHappy = await getPostsByTagName("#happy");
+        console.log("Result:", postsWithHappy);
 
         console.log("Finished database tests!");
     } catch (err) {
