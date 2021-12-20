@@ -1,4 +1,12 @@
-const { client, getAllUsers, createUser, updateUser, createPost, getAllPosts, updatePost, getPostsByUser, getUserById } = require('./index');
+const { client, 
+  getAllUsers,
+  createUser, 
+  updateUser, 
+  createPost, 
+  getAllPosts, updatePost, 
+  getPostsByUser, getUserById, 
+  createTags, 
+  addTagsToPost } = require('./index');
 
 async function testDB() {
     try{
@@ -64,6 +72,30 @@ async function createInitialPosts() {
 
     } catch (error) {
       throw error;
+    }
+  }
+
+  async function createInitialTags() {
+    try {
+      console.log("Starting to create tags...");
+  
+      const [happy, sad, inspo, catman] = await createTags([
+        '#happy', 
+        '#worst-day-ever', 
+        '#youcandoanything',
+        '#catmandoeverything'
+      ]);
+  
+      const [postOne, postTwo, postThree] = await getAllPosts();
+  
+      await addTagsToPost(postOne.id, [happy, inspo]);
+      await addTagsToPost(postTwo.id, [sad, inspo]);
+      await addTagsToPost(postThree.id, [happy, catman, inspo]);
+  
+      console.log("Finished creating tags!");
+    } catch (error) {
+      console.log("Error creating tags!");
+      console.log(error);
     }
   }
 
@@ -167,6 +199,8 @@ async function rebuildDB() {
       await createTables();
       await createInitialUsers();
       await createInitialPosts();
+      await createInitialTags();
+
     } catch (error) {
       console.error(error);
     }
