@@ -162,8 +162,9 @@ async function createTables() {
 
         await client.query(`
             CREATE TABLE post_tags (
-              "postId" INTEGER REFERENCES posts(id) UNIQUE,
-              "tagId" INTEGER REFERENCES tags(id) UNIQUE
+              "postId" INTEGER REFERENCES posts(id),
+              "tagId" INTEGER REFERENCES tags(id),
+              unique("postId", "tagId")
             );
         `)
         
