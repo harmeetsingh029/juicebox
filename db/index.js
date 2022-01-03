@@ -288,6 +288,7 @@ async function updateUser(id, fields = {}) {
       }
   }
 
+
 module.exports = {
   client,
   getAllUsers,
@@ -302,3 +303,4 @@ module.exports = {
   getPostById,
   getPostsByTagName,
 }
+
